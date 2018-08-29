@@ -10,6 +10,7 @@ export {
         Port_Outreach
     };
 
+    ## 主要用于sumstats框架向notice框架中传递的参数，可以显示在notice.log日志文件中
     redef record SumStats::Key += {
         p: port &optional;
         src_host: addr &optional;
