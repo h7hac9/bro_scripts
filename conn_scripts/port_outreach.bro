@@ -1,4 +1,4 @@
-# 端口外联检测脚本
+## 端口外联检测脚本
 
 @load base/frameworks/notice
 @load base/frameworks/sumstats
@@ -32,7 +32,6 @@ event bro_init()
                             local r = result["conn.port.outreach"];
                             NOTICE([$note=Port_Outreach,
                                     $msg="主机频繁连接某一端口",
-                                    $email_body_sections=vector(format_sqli_samples(r$samples)),
                                     $src=key$host,  
                                     $identifier=cat(key$host)]);
                       }]);
@@ -41,5 +40,5 @@ event bro_init()
 
 event connection_established(c: connection) &priority=5
 {
-    SumStats::observe("conn.port.outreach", [$host=c$id$orig_h];
+    SumStats::observe("conn.port.outreach", [$host=c$id$resp_p]);
 }
