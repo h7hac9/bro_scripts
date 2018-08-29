@@ -6,13 +6,18 @@
 module OUTREACH;
 
 export {
-    redef enum NOTICE::Type += {
-        Port_Outreach,
+    redef enum Notice::Type += {
+        Port_Outreach
     };
 
-    const number: double = 40.0 &redef;
+    redef record SumStats::Key += {
+        p: port &optional;
+        src_host: addr &optional;
+    };
 
-    const epoch = 1min &redef;
+    const number: double = 15.0 &redef;
+    
+    const epoch = 0.5min &redef;
 }
 
 event bro_init()
@@ -21,24 +26,24 @@ event bro_init()
     SumStats::create([$name="port-outreach",
                       $epoch=epoch,
                       $reducers=set(r1),
-                      $threshold = count,
+                      $threshold = number,
                       $threshold_val(key: SumStats::Key, result: SumStats::Result) =
                       {
                             return result["conn.port.outreach"]$sum;
                       },
-                      $threshold=sqli_requests_threshold,
                       $threshold_crossed(key: SumStats::Key, result: SumStats::Result) =
                       {
                             local r = result["conn.port.outreach"];
                             NOTICE([$note=Port_Outreach,
                                     $msg="主机频繁连接某一端口",
-                                    $src=key$host,  
+                                    $dst=key$host,
+                                    $src=key$src_host,
+                                    $p=key$p,
                                     $identifier=cat(key$host)]);
                       }]);
-    
 }
 
-event connection_established(c: connection) &priority=5
+event connection_state_remove(c: connection) &priority=5
 {
-    SumStats::observe("conn.port.outreach", [$host=c$id$resp_p]);
+    SumStats::observe("conn.port.outreach", SumStats::Key($src_host=c$id$orig_h,$host=c$id$resp_h,$p=c$id$resp_p), SumStats::Observation($num=1));
 }
