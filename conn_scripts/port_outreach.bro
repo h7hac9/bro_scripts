@@ -1,5 +1,7 @@
 ## 端口外联检测脚本
 
+##说明：在使用时请将中文注释删除再导入
+
 @load base/frameworks/notice
 @load base/frameworks/sumstats
 
