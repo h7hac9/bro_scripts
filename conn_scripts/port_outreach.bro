@@ -48,5 +48,8 @@ event bro_init()
 
 event connection_state_remove(c: connection) &priority=5
 {
-    SumStats::observe("conn.port.outreach", SumStats::Key($src_host=c$id$orig_h,$host=c$id$resp_h,$p=c$id$resp_p), SumStats::Observation($num=1));
+    if (c$id$resp_p != 53/udp)
+    {
+        SumStats::observe("conn.port.outreach", SumStats::Key($src_host=c$id$orig_h,$host=c$id$resp_h,$p=c$id$resp_p), SumStats::Observation($num=1));
+    }
 }
